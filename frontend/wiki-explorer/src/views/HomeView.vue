@@ -40,7 +40,7 @@
         </p>
       </div>
       <button v-if="!button_pressed" @click="callStartGraph">Grow Tree!</button>
-      <button v-if="button_pressed" @click="reloadPage">Reset Tree!</button>
+      <button v-if="button_pressed" @click="resetGraph">Reset Tree!</button>
       <p>
         selected =
         <a
@@ -58,14 +58,21 @@
         </a>
       </div>
     </div>
-    <GraphComponent
-      ref="graphRef"
-      :initial_crawl_link="initial_crawl_link"
-      :refresh_rate="refresh_rate"
-      :getFirst="getFirst"
-      :total_number_of_nodes="total_number_of_nodes"
-      :number_of_nodes_per_branch="number_of_nodes_per_branch"
-    />
+    <div style="position: absolute; left: 100vw; top: 0">
+      <GraphComponent
+        ref="graphRef"
+        :initial_crawl_link="initial_crawl_link"
+        :refresh_rate="refresh_rate"
+        :getFirst="getFirst"
+        :total_number_of_nodes="total_number_of_nodes"
+        :number_of_nodes_per_branch="number_of_nodes_per_branch"
+      />
+    </div>
+    <div style="position: absolute; top: 100vh">
+      path back to root (pink nodes): <br />
+      <a :href="getSelectedNode().id">{{ getSelectedNode().id }}</a> <br />
+      <a v-for="path in getPathToRoot" :key="path.id" :href="path.id">{{ path.id }} <br /> </a>
+    </div>
   </div>
 </template>
 
@@ -96,6 +103,14 @@ export default {
     }
   },
   computed: {
+    getPathToRoot() {
+      if (this.dataGraph) {
+        return this.dataGraph.getPathToRoot()
+      } else {
+        console.log('getPathToNodes: graphRef is null')
+      }
+      return [{ id: '' }]
+    },
     getNodes() {
       if (this.dataGraph) {
         const all_nodes = this.dataGraph.getNodes()
@@ -120,10 +135,7 @@ export default {
       if (graphRef) {
         this.button_pressed = true
         this.dataGraph = graphRef
-        graphRef.startGraph().then(() => {
-          console.log('done')
-          graphRef.updateGraph()
-        })
+        graphRef.startGraph()
       } else {
         console.log('callStartGraph: graphRef is null')
       }
@@ -138,8 +150,10 @@ export default {
     },
     resetGraph() {
       if (this.dataGraph) {
-        this.dataGraph.resetGraph()
-        this.dataGraph.updateGraph()
+        this.button_pressed = false
+        this.dataGraph.resetGraph().then(() => {
+          console.log('graph reset')
+        })
       } else {
         console.log('resetGraph: graphRef is null')
       }

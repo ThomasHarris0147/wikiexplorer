@@ -33,6 +33,7 @@ export default {
       nodes: [],
       links: [],
       simulation: null,
+      pathToRoot: [{ id: '' }],
       graph: {
         nodes: [],
         links: []
@@ -40,6 +41,9 @@ export default {
     }
   },
   methods: {
+    getPathToRoot() {
+      return this.pathToRoot
+    },
     getNodes() {
       return this.graph.nodes
     },
@@ -57,9 +61,12 @@ export default {
       this.previously_visited_nodes.push(this.crawl_link)
       this.loading = false
       this.createForceGraph()
-      while (this.graph.nodes.length <= this.total_number_of_nodes) {
+      while (this.graph.nodes.length <= this.total_number_of_nodes && this.loading === false) {
         const next_links_arr = []
         for (let link of next_links) {
+          if (this.loading === true) {
+            break
+          }
           if (this.previously_visited_nodes.includes(link)) {
             continue
           }
@@ -310,7 +317,7 @@ export default {
         .style('stroke', 'orange')
         .style('stroke-opacity', 1)
 
-      for (let node of this.getPathToRoot(selectedNode)) {
+      for (let node of this.getCalculatedPathToRoot(selectedNode)) {
         this.highlightSpecificNode(node)
       }
     },
@@ -322,7 +329,7 @@ export default {
         .select('circle')
         .attr('fill', 'pink')
     },
-    getPathToRoot(selectedNode) {
+    getCalculatedPathToRoot(selectedNode) {
       const return_val = []
       var currentNode = selectedNode.id
       while (currentNode !== this.initial_crawl_link) {
@@ -334,18 +341,24 @@ export default {
           }
         }
       }
+      this.pathToRoot = return_val
       return return_val
     },
-    resetGraph() {
-      this.graph = {
-        nodes: [],
-        links: []
-      }
-      this.previously_visited_nodes = []
+    async resetGraph() {
+      this.loading = true
+      // Reset data
+      await this.sleep(this.refresh_rate + 1000) // stupid but waits for all nodes to be loaded before deletion
+      this.graph.nodes = []
+      this.graph.links = []
       this.nodes = []
       this.links = []
       this.selectedNode = { id: 'no node selected yet' }
-      this.loading = true
+      this.previously_visited_nodes = []
+
+      // Reset SVG
+      const svg = d3.select(this.$refs.graph)
+      svg.selectAll('*').remove()
+      this.$forceUpdate()
     }
   }
 }
