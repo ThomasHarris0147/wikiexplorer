@@ -1,11 +1,11 @@
 import logging
-
+from typing import Set, Dict, List, Tuple
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
 
 
 class WikiCrawler:
-    def get_first_sub_links(self, url: str, collected_links: set[str], first_n_sublinks: int) -> set[str]:
+    def get_first_sub_links(self, url: str, collected_links: Set[str], first_n_sublinks: int) -> Set[str]:
         sub_links = set()
         html = urlopen(url)
         soup = BeautifulSoup(html, 'html.parser')
@@ -25,7 +25,7 @@ class WikiCrawler:
                 logging.info("found link: https://en.wikipedia.org" + a["href"])
         return sub_links
 
-    def get_last_sub_links(self, url: str, collected_links: set[str], last_n_sublinks: int) -> set[str]:
+    def get_last_sub_links(self, url: str, collected_links: Set[str], last_n_sublinks: int) -> Set[str]:
         sub_links = set()
         html = urlopen(url)
         soup = BeautifulSoup(html, 'html.parser')
@@ -47,16 +47,16 @@ class WikiCrawler:
                 return last_sub_links
         return set(list(sub_links)[-last_n_sublinks:])
 
-    def convert_links_to_d3_nodes(self, sub_links: set[str]) -> list[dict[str, str]]:
+    def convert_links_to_d3_nodes(self, sub_links: Set[str]) -> List[Dict[str, str]]:
         d3_nodes = []
         for sub_link in sub_links:
             d3_nodes.append({"id": sub_link})
         return d3_nodes
 
     def convert_links_and_sub_links_to_d3_nodes_and_links(self,
-                                                          sub_links: set[str],
-                                                          links: list[tuple[str, str]]
-                                                          ) -> (dict, dict):
+                                                          sub_links: Set[str],
+                                                          links: List[Tuple[str, str]]
+                                                          ) -> (Dict, Dict):
         d3_nodes = []
         d3_links = []
         for link in links:

@@ -92,9 +92,6 @@ export default {
       this.updateGraph()
       return sub_links
     },
-    getRndInteger(min, max) {
-      return Math.floor(Math.random() * (max - min + 1)) + min
-    },
     initializeGraph() {
       this.crawl_link = this.initial_crawl_link
       this.nodes = [this.crawl_link.slice()]

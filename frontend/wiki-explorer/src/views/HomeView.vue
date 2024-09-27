@@ -78,7 +78,6 @@
 
 <script>
 import GraphComponent from '@/components/GraphComponent.vue'
-import { ref, onMounted } from 'vue'
 
 export default {
   name: 'ForceGraph',
