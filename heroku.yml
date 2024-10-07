@@ -1,8 +1,0 @@
-build:
-  docker:
-    web: ./frontend/wiki-explorer
-    be: ./backend
-
-run:
-  web: web
-  be: be
